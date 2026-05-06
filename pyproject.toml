@@ -1,0 +1,11 @@
+[project]
+name = "libraryapi"
+version = "0.1.0"
+description = "Recruitment purpose FastAPI application."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.136.1",
+    "pydantic-settings>=2.14.0",
+    "sqlalchemy>=2.0.49",
+]
