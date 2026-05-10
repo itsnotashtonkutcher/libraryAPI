@@ -1,3 +1,4 @@
+import re
 from typing import Annotated
 
 from sqlalchemy import types
@@ -21,14 +22,9 @@ class LibSerial(types.TypeDecorator):
 
     @staticmethod
     def raise_error_when_invalid_value(value: str):
-        try:
-            value: int = int(value)
-        except ValueError as e:
-            raise ValueError(
-                f"Improper value for library serial number: {value}"
-            ) from e
-        if not (0 <= value < 10**7):
-            raise ValueError("Value for library serial should six digit number.")
+        if not re.match(r"^\d{6}$", value):
+            raise ValueError("Value for library serial should be six digit number.")
+        return int(value)
 
 
 type LibPrimaryKey = Annotated[str, mapped_column(LibSerial, primary_key=True)]

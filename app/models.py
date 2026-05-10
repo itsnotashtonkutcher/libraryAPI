@@ -26,10 +26,6 @@ class Book(Base):
         "Borrowing", back_populates="book", cascade="all, delete-orphan"
     )
 
-    @property
-    def is_currently_borrowed(self) -> bool:
-        return any(b.returned_at is None for b in self.borrowing_history)
-
 
 class Borrowing(Base):
     id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)

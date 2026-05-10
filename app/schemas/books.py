@@ -1,11 +1,11 @@
 from pydantic import BaseModel, ConfigDict
 
-from app.utils.schemas import SerialString
+from app.utils.schemas import SerialString, String255, String255OrNone
 
 
 class BookBase(BaseModel):
-    title: str
-    author: str
+    title: String255
+    author: String255
 
 
 class BookCreate(BookBase):
@@ -13,12 +13,12 @@ class BookCreate(BookBase):
 
 
 class BookUpdate(BaseModel):
-    title: str | None = None
-    author: str | None = None
+    title: String255OrNone
+    author: String255OrNone
 
 
 class BookResponse(BookBase):
-    serial_number: str
+    serial_number: SerialString
     model_config = ConfigDict(from_attributes=True)
 
 

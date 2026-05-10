@@ -1,13 +1,8 @@
 from typing import Annotated
 
-from pydantic import AfterValidator
+from pydantic import Field
 
-from app.utils.database import LibSerial
-
-
-def validate_serial(value: str) -> str:
-    LibSerial.raise_error_when_invalid_value(value)
-    return value
-
-
-SerialString = Annotated[str, AfterValidator(validate_serial)]
+SerialString = Annotated[str, Field(pattern=r"^\d{6}$")]
+String100 = Annotated[str, Field(max_length=100)]
+String255 = Annotated[str, Field(max_length=255)]
+String255OrNone = Annotated[str | None, Field(default = None, max_length=255)]

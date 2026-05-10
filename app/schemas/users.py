@@ -3,11 +3,11 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
 
-from app.utils.schemas import SerialString
+from app.utils.schemas import SerialString, String100
 
 
 class UserBase(BaseModel):
-    name: str
+    name: String100
     library_card_id: SerialString
 
 
@@ -22,8 +22,8 @@ class UserResponse(UserBase):
 class BorrowingResponse(BaseModel):
     id: UUID
 
-    user_serial: str
-    book_serial: str
+    user_serial: SerialString
+    book_serial: SerialString
 
     borrowed_at: datetime
     returned_at: datetime | None = None
