@@ -1,8 +1,10 @@
 from datetime import datetime, timedelta
 
+import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from testcontainers.postgres import PostgresContainer
 
 from app.database import Base, get_db
 from app.main import app
@@ -10,19 +12,24 @@ from app.models import Book, Borrowing, User
 from app.settings import settings
 
 
-@pytest_asyncio.fixture(scope="function")
-async def engine():
-    engine = create_async_engine(settings.db_uri, echo=False)
+@pytest.fixture(scope="session")
+def postgres_container():
+    with PostgresContainer("postgres:15-alpine") as postgres:
+        wait_address = postgres.get_connection_url().replace("psycopg2", "asyncpg")
+        yield wait_address
 
-    async with engine.connect() as conn:
+
+@pytest_asyncio.fixture(scope="function")
+async def engine(postgres_container):
+    engine = create_async_engine(postgres_container, echo=False)
+
+    async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-        await conn.commit()
 
     yield engine
 
-    async with engine.connect() as conn:
+    async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
-        await conn.commit()
 
     await engine.dispose()
 
@@ -31,13 +38,11 @@ async def engine():
 async def db_session(engine):
     async with engine.connect() as conn:
         transaction = await conn.begin()
-        await conn.run_sync(Base.metadata.create_all)
         session = AsyncSession(bind=conn, expire_on_commit=False)
 
         yield session
 
         await session.close()
-        await conn.run_sync(Base.metadata.drop_all)
         await transaction.rollback()
 
 

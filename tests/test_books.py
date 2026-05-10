@@ -1,10 +1,8 @@
-from datetime import datetime
-
 import pytest
 from httpx import AsyncClient
 from sqlalchemy import select
 
-from app.models import Book, Borrowing, User
+from app.models import Borrowing
 
 
 @pytest.mark.asyncio
@@ -116,7 +114,7 @@ async def test_return_book(test_client: AsyncClient, db_session, seed_db):
 
     result = await db_session.execute(
         select(Borrowing).where(
-            Borrowing.book_serial == serial_number, Borrowing.returned_at == None
+            Borrowing.book_serial == serial_number, Borrowing.returned_at is None
         )
     )
     borrowing = result.scalar_one_or_none()

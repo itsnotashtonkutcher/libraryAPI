@@ -4,7 +4,7 @@ from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 from app.database import Base
-from app.models import Book, Borrowing, User
+from app.models import Book, Borrowing, User  # noqa: F401
 from app.settings import settings
 
 # this is the Alembic Config object, which provides

@@ -1,18 +1,13 @@
-from datetime import datetime
-
-from fastapi import APIRouter, Depends, HTTPException, status, Request
-from sqlalchemy import exists, func, select
+from fastapi import APIRouter, Depends, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.utils.schemas import SerialString
 
 from app.database import get_db
-from app.models import Book, Borrowing, User
 from app.schemas.books import BookCreate, BookResponse, BookUpdate, BookWithStatus
 from app.schemas.users import BorrowingResponse
 from app.services import books as service
-from app.settings import settings
 from app.utils.dependencies import PaginationParams, get_pagination_params
-from app.utils.pagination import paginate, get_pagination_model_for
+from app.utils.pagination import get_pagination_model_for, paginate
+from app.utils.schemas import SerialString
 
 router = APIRouter(prefix="/books", tags=["books"])
 
@@ -28,7 +23,6 @@ async def get_all_books(
     page_params: PaginationParams = Depends(get_pagination_params),
 ):
     return await service.get_all_books(db, page_params)
-
 
 
 @router.post("", response_model=BookResponse, status_code=status.HTTP_201_CREATED)
@@ -59,7 +53,9 @@ async def delete_book(
 
 
 @router.post("/{serial}/borrow/{user_id}", response_model=BorrowingResponse)
-async def borrow_book(serial: SerialString, user_id: SerialString, db: AsyncSession = Depends(get_db)):
+async def borrow_book(
+    serial: SerialString, user_id: SerialString, db: AsyncSession = Depends(get_db)
+):
     return await service.borrow_book(db, user_id, serial)
 
 

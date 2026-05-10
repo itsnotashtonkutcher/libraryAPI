@@ -1,5 +1,5 @@
 from functools import wraps
-from typing import Any, Type
+from typing import Any
 
 from fastapi import Request
 from furl import furl
@@ -8,16 +8,16 @@ from pydantic import create_model
 from app.utils.dependencies import PaginationParams
 
 
-def get_pagination_model_for(record_model: Type[Any], label: str):
+def get_pagination_model_for(record_model: type[Any], label: str):
     # pass valid response_model for endpoint statement
     return create_model(
         f"{record_model}Pagination",
         **{label: list[record_model]},
-        next= str|None,
+        next=str | None,
     )
 
 
-def paginate(label: str, record_model: Type[Any]):
+def paginate(label: str, record_model: type[Any]):
     # use only for endpoints with request
     # and pagination_params (app.utils.dependencies.get_pagination_params) defined
 
@@ -38,8 +38,8 @@ def paginate(label: str, record_model: Type[Any]):
                     "There are no pagination params in endpoint definition."
                 )
             # params already validated by Query objects in dependency
-            page = getattr(params, "page")
-            size = getattr(params, "size")
+            page = params.page
+            size = params.size
 
             next_link = None
             if len(records) == size:

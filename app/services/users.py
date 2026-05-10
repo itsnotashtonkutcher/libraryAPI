@@ -15,6 +15,7 @@ async def get_all_users(db: AsyncSession, page_params: PaginationParams):
 
     return users
 
+
 async def get_user_by_id(db: AsyncSession, user_id: SerialString):
     user = await db.get(User, user_id)
 
@@ -25,21 +26,21 @@ async def get_user_by_id(db: AsyncSession, user_id: SerialString):
         )
     return user
 
+
 async def create_user(db: AsyncSession, payload: UserCreate):
     stmt = select(User).where(User.library_card_id == payload.library_card_id)
     result = await db.execute(stmt)
     existing_user = result.scalar_one_or_none()
 
     if existing_user:
-        raise HTTPException(
-            status_code=400, detail="User with this ID already exists"
-        )
+        raise HTTPException(status_code=400, detail="User with this ID already exists")
 
     new_user = User(**payload.model_dump())
     db.add(new_user)
     await db.commit()
     await db.refresh(new_user)
     return new_user
+
 
 async def delete_user(db: AsyncSession, user_id: SerialString, force: bool):
     # to not interfere with borrowing, select for update
@@ -53,14 +54,17 @@ async def delete_user(db: AsyncSession, user_id: SerialString, force: bool):
 
     if not force:
         active_stmt = select(Borrowing).where(
-            Borrowing.user_serial == user_id, Borrowing.returned_at == None
+            Borrowing.user_serial == user_id, Borrowing.returned_at is None
         )
         active_result = await db.execute(active_stmt)
         has_active_bookings = active_result.scalars().first() is not None
         if has_active_bookings:
             raise HTTPException(
                 status_code=400,
-                detail="Cannot delete user with active bookings. Use force=true to override.",
+                detail=(
+                    "Cannot delete user with active bookings.",
+                    "Use force=true to override.",
+                ),
             )
 
     del_borrowings_stmt = delete(Borrowing).where(Borrowing.user_serial == user_id)
@@ -71,16 +75,18 @@ async def delete_user(db: AsyncSession, user_id: SerialString, force: bool):
 
     return None
 
+
 async def get_active_borrowings(db: AsyncSession, user_id: str):
     user = await db.get(User, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
     stmt = select(Borrowing).where(
-        Borrowing.user_serial == user_id, Borrowing.returned_at == None
+        Borrowing.user_serial == user_id, Borrowing.returned_at is None
     )
     result = await db.execute(stmt)
     return result.scalars().all()
+
 
 async def get_historic_borrowings(
     db: AsyncSession, page_params: PaginationParams, user_id: str
@@ -91,7 +97,7 @@ async def get_historic_borrowings(
 
     stmt = (
         select(Borrowing)
-        .where(Borrowing.user_serial == user_id, Borrowing.returned_at != None)
+        .where(Borrowing.user_serial == user_id, Borrowing.returned_at is not None)
         .offset(page_params.offset)
         .limit(page_params.size)
     )
