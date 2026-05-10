@@ -17,7 +17,7 @@ async def get_all_books(db: AsyncSession, page_params: PaginationParams):
             Book,
             exists()
             .where(Borrowing.book_serial == Book.serial_number)
-            .where(Borrowing.returned_at is None)
+            .where(Borrowing.returned_at == None)
             .label("is_borrowed"),
         )
         .offset(page_params.offset)
@@ -52,7 +52,7 @@ async def get_book(db: AsyncSession, serial: str):
         Book,
         exists()
         .where(Borrowing.book_serial == serial)
-        .where(Borrowing.returned_at is None)
+        .where(Borrowing.returned_at == None)
         .label("is_borrowed"),
     ).where(Book.serial_number == serial)
 
@@ -93,7 +93,7 @@ async def delete_book(db: AsyncSession, serial: SerialString, force: bool):
 
     if not force:
         active_stmt = select(func.count(Borrowing.id)).where(
-            Borrowing.book_serial == serial, Borrowing.returned_at is None
+            Borrowing.book_serial == serial, Borrowing.returned_at == None
         )
         active_result = await db.execute(active_stmt)
         active_count = active_result.scalar() or 0
@@ -129,14 +129,14 @@ async def borrow_book(db: AsyncSession, user_id: SerialString, serial: SerialStr
         raise HTTPException(status_code=404, detail="Book not found")
 
     check_stmt = select(Borrowing).where(
-        Borrowing.book_serial == serial, Borrowing.returned_at is None
+        Borrowing.book_serial == serial, Borrowing.returned_at == None
     )
     existing_borrow = await db.execute(check_stmt)
     if existing_borrow.scalar_one_or_none():
         raise HTTPException(status_code=400, detail="Book is currently borrowed")
 
     count_stmt = select(func.count(Borrowing.id)).where(
-        Borrowing.user_serial == user_id, Borrowing.returned_at is None
+        Borrowing.user_serial == user_id, Borrowing.returned_at == None
     )
     count_result = await db.execute(count_stmt)
     active_count = count_result.scalar() or 0
@@ -155,7 +155,7 @@ async def borrow_book(db: AsyncSession, user_id: SerialString, serial: SerialStr
 
 async def return_book(db: AsyncSession, serial: SerialString):
     stmt = select(Borrowing).where(
-        Borrowing.book_serial == serial, Borrowing.returned_at is None
+        Borrowing.book_serial == serial, Borrowing.returned_at == None
     )
     result = await db.execute(stmt)
     borrowing = result.scalar_one_or_none()

@@ -54,7 +54,7 @@ async def delete_user(db: AsyncSession, user_id: SerialString, force: bool):
 
     if not force:
         active_stmt = select(Borrowing).where(
-            Borrowing.user_serial == user_id, Borrowing.returned_at is None
+            Borrowing.user_serial == user_id, Borrowing.returned_at == None
         )
         active_result = await db.execute(active_stmt)
         has_active_bookings = active_result.scalars().first() is not None
@@ -76,13 +76,18 @@ async def delete_user(db: AsyncSession, user_id: SerialString, force: bool):
     return None
 
 
-async def get_active_borrowings(db: AsyncSession, user_id: str):
+async def get_active_borrowings(
+    db: AsyncSession, user_id: str, page_params: PaginationParams
+):
     user = await db.get(User, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    stmt = select(Borrowing).where(
-        Borrowing.user_serial == user_id, Borrowing.returned_at is None
+    stmt = (
+        select(Borrowing)
+        .where(Borrowing.user_serial == user_id, Borrowing.returned_at == None)
+        .offset(page_params.offset)
+        .limit(page_params.size)
     )
     result = await db.execute(stmt)
     return result.scalars().all()
@@ -97,7 +102,7 @@ async def get_historic_borrowings(
 
     stmt = (
         select(Borrowing)
-        .where(Borrowing.user_serial == user_id, Borrowing.returned_at is not None)
+        .where(Borrowing.user_serial == user_id, Borrowing.returned_at != None)
         .offset(page_params.offset)
         .limit(page_params.size)
     )

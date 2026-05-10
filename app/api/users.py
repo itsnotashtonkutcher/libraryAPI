@@ -38,10 +38,19 @@ async def delete_user(
     return await service.delete_user(db, user_id, force)
 
 
-@router.get("/{user_id}/bookings", response_model=list[BorrowingResponse])
-async def get_active_borrowings(user_id: str, db: AsyncSession = Depends(get_db)):
+@router.get(
+    "/{user_id}/bookings",
+    response_model=get_pagination_model_for(BorrowingResponse, "borrowings"),
+)
+@paginate(label="borrowings", record_model=BorrowingResponse)
+async def get_active_borrowings(
+    request: Request,  # noqa: F841
+    user_id: str,
+    page_params: PaginationParams = Depends(get_pagination_params),
+    db: AsyncSession = Depends(get_db),
+):
     # no pagination, because there is limited number of borrowed books
-    return await service.get_active_borrowings(db, user_id)
+    return await service.get_active_borrowings(db, user_id, page_params)
 
 
 @router.get(
