@@ -26,7 +26,6 @@ line-length = 88
 select = ["E", "F", "I", "B", "UP"]
 ignore = [
     "B008", # calling function as argument default (eq. Depends)
-    "E711", # None comparison (sqlalchemy compares through == not identity)
 ]
 
 [tool.ruff.lint.isort]

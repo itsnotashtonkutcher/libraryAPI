@@ -54,7 +54,7 @@ async def delete_user(db: AsyncSession, user_id: SerialString, force: bool):
 
     if not force:
         active_stmt = select(Borrowing).where(
-            Borrowing.user_serial == user_id, Borrowing.returned_at == None
+            Borrowing.user_serial == user_id, Borrowing.returned_at.is_(None)
         )
         active_result = await db.execute(active_stmt)
         has_active_bookings = active_result.scalars().first() is not None
@@ -62,8 +62,8 @@ async def delete_user(db: AsyncSession, user_id: SerialString, force: bool):
             raise HTTPException(
                 status_code=400,
                 detail=(
-                    "Cannot delete user with active bookings.",
-                    "Use force=true to override.",
+                    "Cannot delete user with active bookings."
+                    " Use force=true to override."
                 ),
             )
 
@@ -85,7 +85,7 @@ async def get_active_borrowings(
 
     stmt = (
         select(Borrowing)
-        .where(Borrowing.user_serial == user_id, Borrowing.returned_at == None)
+        .where(Borrowing.user_serial == user_id, Borrowing.returned_at.is_(None))
         .offset(page_params.offset)
         .limit(page_params.size)
     )
@@ -102,7 +102,7 @@ async def get_historic_borrowings(
 
     stmt = (
         select(Borrowing)
-        .where(Borrowing.user_serial == user_id, Borrowing.returned_at != None)
+        .where(Borrowing.user_serial == user_id, Borrowing.returned_at.is_not(None))
         .offset(page_params.offset)
         .limit(page_params.size)
     )

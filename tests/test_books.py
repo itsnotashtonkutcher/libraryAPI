@@ -114,7 +114,7 @@ async def test_return_book(test_client: AsyncClient, db_session, seed_db):
 
     result = await db_session.execute(
         select(Borrowing).where(
-            Borrowing.book_serial == serial_number, Borrowing.returned_at == None
+            Borrowing.book_serial == serial_number, Borrowing.returned_at.is_(None)
         )
     )
     borrowing = result.scalar_one_or_none()

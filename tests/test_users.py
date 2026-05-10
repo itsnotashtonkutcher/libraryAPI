@@ -206,8 +206,8 @@ async def test_get_active_bookings(test_client: AsyncClient, seed_db):
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
     expected_count = len([b for b in borrowings if b.user_serial == user_id])
-    assert len(data) == expected_count
-    assert all(b["returned_at"] is None for b in data)
+    assert len(data["borrowings"]) == expected_count
+    assert all(b["returned_at"] is None for b in data["borrowings"])
 
 
 @pytest.mark.asyncio
