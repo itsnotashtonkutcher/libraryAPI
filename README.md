@@ -1,8 +1,8 @@
 # API for library
 To build and run containers run:
 ```commandline
+cp .env.example .env
 docker-compose build --no-cache
-
 docker-compose up
 ```
 Application should be available on port 8000 on localhost.
