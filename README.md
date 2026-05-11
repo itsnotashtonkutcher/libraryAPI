@@ -9,6 +9,6 @@ Application should be available on port 8000 on localhost.
 
 To run tests create virtual environment with uv and run:
 ```commandline
-uv sync
+uv sync --dev
 uv run pytest
 ```
