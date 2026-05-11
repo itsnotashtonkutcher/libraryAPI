@@ -22,7 +22,7 @@ services:
       - db
     environment:
       DB_HOST: "db"
-      DB_PORT: ${DB_PORT}
+      DB_PORT: "5432"
     networks:
       - library_network
 
