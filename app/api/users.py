@@ -45,7 +45,7 @@ async def delete_user(
 @paginate(label="borrowings", record_model=BorrowingResponse)
 async def get_active_borrowings(
     request: Request,  # noqa: F841
-    user_id: str,
+    user_id: SerialString,
     page_params: PaginationParams = Depends(get_pagination_params),
     db: AsyncSession = Depends(get_db),
 ):
@@ -60,7 +60,7 @@ async def get_active_borrowings(
 @paginate(label="borrowings", record_model=BorrowingResponse)
 async def get_historic_borrowings(
     request: Request,  # noqa: F841
-    user_id: str,
+    user_id: SerialString,
     page_params: PaginationParams = Depends(get_pagination_params),
     db: AsyncSession = Depends(get_db),
 ):
