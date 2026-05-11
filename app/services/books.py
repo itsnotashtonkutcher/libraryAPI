@@ -4,7 +4,7 @@ from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db_managers.books import BookManager
-from app.db_managers.borrowing import BorrowingManager
+from app.db_managers.borrowings import BorrowingManager
 from app.db_managers.users import UserManager
 from app.models import Book
 from app.schemas.books import BookCreate, BookUpdate
