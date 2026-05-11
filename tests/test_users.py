@@ -145,7 +145,7 @@ async def test_delete_user_with_active_borrowings_fails_without_force(
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert (
-        "Cannot delete user with active bookings. Use force=true to override."
+        "Cannot delete user with active borrowings. Use force=true to override."
         == response.json()["detail"]
     )
 
