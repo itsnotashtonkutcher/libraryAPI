@@ -21,7 +21,7 @@ class Base(DeclarativeBase):
     @declared_attr.directive
     def __tablename__(cls) -> str:
         # add underscore between each word
-        name = re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", cls.__name__).lower()
+        name = re.sub(r"(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])", "_", cls.__name__).lower()
 
         # add plural form
         if name.endswith("y"):
